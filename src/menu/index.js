@@ -128,7 +128,7 @@ class Menu {
 		if((x + width) > window.innerWidth) {
 			setRight = true;
 			if(submenu) {
-				let node = this.parentMenu.node;
+				let node = this.parentMenuItem.node;
 				x = node.offsetWidth + ((window.innerWidth - node.offsetLeft) - node.offsetWidth) - 2;
 			} else {
 				x = 0;

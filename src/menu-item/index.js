@@ -127,7 +127,8 @@ class MenuItem extends EventEmitter2 {
 
 		this.parentMenu.popdownAll();
 		if(this.type === 'checkbox') {
-			this.node.classList.toggle('checked');
+			if (this.node)
+				this.node.classList.toggle('checked');
 			this.checked = !this.checked;
 		}
 
@@ -178,7 +179,7 @@ class MenuItem extends EventEmitter2 {
 
 		if(menuBarTopLevel) {
 			node.addEventListener('mousedown', this._clickHandle_click_menubarTop.bind(this));
-			node.addEventListener('mouseover', this._mouseoverHandle_menubarTop.bind(this));
+			node.addEventListener('mouseenter', this._mouseoverHandle_menubarTop.bind(this));
 		} else if(this.type !== 'separator') {
 			node.addEventListener('click', this._clickHandle_click.bind(this));
 			node.addEventListener('mouseup', (e) => {
@@ -205,8 +206,11 @@ class MenuItem extends EventEmitter2 {
 		let checkmarkNode = document.createElement('div');
 		checkmarkNode.classList.add('checkmark');
 
-		if(this.checked && !menuBarTopLevel) {
+		if(!menuBarTopLevel) {
+                    if (this.checked)
 			node.classList.add('checked');
+                    else
+			node.classList.remove('checked');
 		}
 
 		let text = '';
@@ -242,8 +246,14 @@ class MenuItem extends EventEmitter2 {
 		}
 
 		if(!menuBarTopLevel) {
-			node.addEventListener('mouseover', () => {
+			node.addEventListener('mouseenter', () => {
+			    if(this.parentMenu.currentSubmenu) {
+					this.parentMenu.currentSubmenu.popdown();
+					this.parentMenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
+				    this.parentMenu.currentSubmenu = null;
+                                }
 				if(this.submenu) {
+					this.parentMenu.currentSubmenu = this.submenu;
 					if(this.submenu.node) {
 						if(this.submenu.node.classList.contains('show')) {
 							return;
@@ -255,13 +265,6 @@ class MenuItem extends EventEmitter2 {
 					let x = parentNode.offsetWidth + parentNode.offsetLeft - 2;
 					let y = parentNode.offsetTop + node.offsetTop - 4;
 					this.submenu.popup(x, y, true, menuBarTopLevel);
-					this.parentMenu.currentSubmenu = this.submenu;
-				} else {
-					if(this.parentMenu.currentSubmenu) {
-						this.parentMenu.currentSubmenu.popdown();
-						this.parentMenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
-						this.parentMenu.currentSubmenu = null;
-					}
 				}
 			});
 		}

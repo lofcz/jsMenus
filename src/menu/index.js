@@ -87,7 +87,7 @@ class Menu {
 	_clickHandle_hideMenu(e) {
 		if (this.ignoreNextClick) {
 			this.ignoreNextClick = false;
-		} else if(!this.isNodeInChildMenuTree(e.target)) {
+		} else if(this.node && !this.isNodeInChildMenuTree(e.target)) {
 			if(this.node.classList.contains('show') || this.type === 'menubar') this.popdown();
 		}
 	}
@@ -168,7 +168,10 @@ class Menu {
 	}
 
 	popdown() {
-		if(this.node) this.node.classList.remove('show');
+		if(this.node && this.type !== 'menubar') {
+			this.node.parentNode.removeChild(this.node);
+			this.node = null;
+		}
 		if(this.type !== 'menubar') document.removeEventListener('click', this.clickHandler);
 
 		if(this.type === 'menubar') {
@@ -178,6 +181,8 @@ class Menu {
 		this.items.forEach(item => {
 			if(item.submenu) {
 				item.submenu.popdown();
+			} else {
+				item.node = null;
 			}
 		});
 	}
@@ -195,7 +200,10 @@ class Menu {
 		this.items.forEach(item => {
 			let itemNode;
 			if(this.type === 'menubar') itemNode = item.buildItem(true);
-			else itemNode = item.buildItem();
+			else {
+				item.parentMenu = this;
+				itemNode = item.buildItem();
+			}
 			menuNode.appendChild(itemNode);
 		});
 		return menuNode;
@@ -255,6 +263,8 @@ class Menu {
 	}
 
 	clearActiveSubmenuStyling(notThisNode) {
+		if (! this.node)
+			return;
 		let submenuActive = this.node.querySelectorAll('.submenu-active');
 		for(let node of submenuActive) {
 			if(node === notThisNode) continue;

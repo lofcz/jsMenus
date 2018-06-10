@@ -26,7 +26,6 @@ html, body {
 	padding: 4px 0;
 	list-style: none;
 	pointer-events: none;
-	border-radius: 7px;
 	border: 1px rgba(191, 191, 191, 0.8) solid;
 	box-shadow: rgba(43, 43, 43, 0.34) 1px 1px 11px 0px;
 }
@@ -177,10 +176,17 @@ li.menu-item.separator {
     padding: 0 9px;
 }
 
-.contextmenu.menubar-submenu {
-    border-radius: 0 0 7px 7px;
-}
-
 .contextmenu.menubar-submenu.show {
     transition: opacity 0ms;
 }
+
+/* Mac only?
+.contextmenu {
+    border-radius: 7px;
+}
+.contextmenu.menubar-submenu {
+    border-radius: 0 0 7px 7px;
+}
+*/
+
+

@@ -72,6 +72,7 @@ class Menu {
 		this.clickHandler = this._clickHandle_hideMenu.bind(this);
 		this.currentSubmenu = null;
 		this.parentMenuItem = null;
+		this.ignoreNextClick = false;
 
 		function isValidType(typeIn = '', debug = false) {
 			if(typeEnum.indexOf(typeIn) < 0) {
@@ -81,13 +82,12 @@ class Menu {
 			return true;
 		}
 
-		if(this.type === 'menubar') {
-			document.addEventListener('click', this.clickHandler);
-		}
 	}
 
 	_clickHandle_hideMenu(e) {
-		if(!this.isNodeInChildMenuTree(e.target)) {
+		if (this.ignoreNextClick) {
+			this.ignoreNextClick = false;
+		} else if(!this.isNodeInChildMenuTree(e.target)) {
 			if(this.node.classList.contains('show') || this.type === 'menubar') this.popdown();
 		}
 	}
@@ -114,6 +114,9 @@ class Menu {
 			this.node = menuNode;
 
 		}
+		if(this.type === 'menubar') {
+			this.node.addEventListener('click', this.clickHandler);
+		}
 
 		this.items.forEach(item => {
 			if(item.submenu) {
@@ -121,7 +124,7 @@ class Menu {
 				item.submenu.popdown();
 			}
 		});
-
+		this.ignoreNextClick=true;
 		let width = menuNode.clientWidth;
 		let height = menuNode.clientHeight;
 

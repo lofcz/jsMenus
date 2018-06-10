@@ -28,6 +28,7 @@ html, body {
 	pointer-events: none;
 	border: 1px rgba(191, 191, 191, 0.8) solid;
 	box-shadow: rgba(43, 43, 43, 0.34) 1px 1px 11px 0px;
+	z-index: 2147483647;
 }
 
 .contextmenu.show {

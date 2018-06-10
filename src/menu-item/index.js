@@ -133,7 +133,7 @@ class MenuItem extends EventEmitter2 {
 
 		this.emit('click', this);
 
-		if(this.click) this.click();
+		if(this.click) this.click(this);
 	}
 
 	_clickHandle_click_menubarTop() {

@@ -2,9 +2,11 @@
 
 html, body {
 	margin: 0;
-	background-color: white;
 	height: 100%;
 }
+body { display: flex; flex-direction: column }
+.menubar { flex: 0 0 22px }
+div.below-menubar { flex: 1 1 100%; }
 
 .nwjs-menu {
 	font-family: 'Helvetica Neue', HelveticaNeue, 'TeX Gyre Heros', TeXGyreHeros, FreeSans, 'Nimbus Sans L', 'Liberation Sans', Arimo, Helvetica, Arial, sans-serif;
@@ -18,7 +20,7 @@ html, body {
 
 .contextmenu {
 	min-width: 100px;
-	background-color: #eee;
+	background-color: #fafafa;
 	position: fixed;
 	opacity: 0;
 	transition: opacity 250ms;
@@ -189,5 +191,3 @@ li.menu-item.separator {
     border-radius: 0 0 7px 7px;
 }
 */
-
-

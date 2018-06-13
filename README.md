@@ -67,6 +67,9 @@ if(!nw) {
 ```
 
 ### Build
+
+Prerequisites: ``npm install gulp webpack webpack-stream babel-loader babel-core es2015 babel-preset-es2015``.
+
 If required, build using ```npm run build```, built files will be in ```./dist```.
 
 ## Screenshots

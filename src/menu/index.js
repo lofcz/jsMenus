@@ -1,4 +1,5 @@
 import MenuItem from '../menu-item';
+import isDescendant from '../is-decendant';
 import recursiveNodeFind from '../recursive-node-find';
 
 class Menu {
@@ -29,7 +30,6 @@ class Menu {
 			}
 			item.parentMenu = this;
 			let index = items.push(item);
-			this.rebuild();
 			return index;
 		};
 
@@ -41,7 +41,6 @@ class Menu {
 
 			items.splice(index, 0, item);
 			item.parentMenu = this;
-			this.rebuild();
 			return true;
 		};
 
@@ -57,22 +56,18 @@ class Menu {
 				return false;
 			} else {
 				items.splice(index, 0);
-				this.rebuild();
 				return true;
 			}
 		};
 
 		this.removeAt = index => {
 			items.splice(index, 0);
-			this.rebuild();
 			return true;
 		};
 
 		this.node = null;
-		this.clickHandler = this._clickHandle_hideMenu.bind(this);
 		this.currentSubmenu = null;
 		this.parentMenuItem = null;
-		this.ignoreNextClick = false;
 
 		function isValidType(typeIn = '', debug = false) {
 			if(typeEnum.indexOf(typeIn) < 0) {
@@ -82,14 +77,6 @@ class Menu {
 			return true;
 		}
 
-	}
-
-	_clickHandle_hideMenu(e) {
-		if (this.ignoreNextClick) {
-			this.ignoreNextClick = false;
-		} else if(this.node && !this.isNodeInChildMenuTree(e.target)) {
-			if(this.node.classList.contains('show') || this.type === 'menubar') this.popdown();
-		}
 	}
 
 	createMacBuiltin() {
@@ -106,16 +93,16 @@ class Menu {
 
 		menubarSubmenu = menubarSubmenu || this.menubarSubmenu;
 		this.menubarSubmenu = menubarSubmenu;
+		if (! Menu._topmostMenu)
+			Menu._topmostMenu = this;
 
 		if(this.node) {
 			menuNode = this.node;
 		} else {
 			menuNode = this.buildMenu(submenu, menubarSubmenu);
+			menuNode.jsMenuItem = this;
 			this.node = menuNode;
 
-		}
-		if(this.type === 'menubar') {
-			this.node.addEventListener('click', this.clickHandler);
 		}
 
 		this.items.forEach(item => {
@@ -124,7 +111,6 @@ class Menu {
 				item.submenu.popdown();
 			}
 		});
-		this.ignoreNextClick=true;
 		let width = menuNode.clientWidth;
 		let height = menuNode.clientHeight;
 
@@ -153,8 +139,6 @@ class Menu {
 		menuNode.style.top = y + 'px';
 		menuNode.classList.add('show');
 
-		if(!submenu) document.addEventListener('click', this.clickHandler);
-
 		if(this.node) {
 			if(this.node.parentNode) {
 				if(menuNode === this.node) return;
@@ -172,7 +156,8 @@ class Menu {
 			this.node.parentNode.removeChild(this.node);
 			this.node = null;
 		}
-		if(this.type !== 'menubar') document.removeEventListener('click', this.clickHandler);
+		if (this.parentMenu == null)
+			Menu._topmostMenu = null;
 
 		if(this.type === 'menubar') {
 			this.clearActiveSubmenuStyling();
@@ -197,35 +182,93 @@ class Menu {
 		if(submenu) menuNode.classList.add('submenu');
 		if(menubarSubmenu) menuNode.classList.add('menubar-submenu');
 
+		menuNode.jsMenu = this;
 		this.items.forEach(item => {
-			let itemNode;
-			if(this.type === 'menubar') itemNode = item.buildItem(true);
-			else {
-				item.parentMenu = this;
-				itemNode = item.buildItem();
-			}
+			item.parentMenu = this;
+			let itemNode = item.buildItem(menuNode,
+						      this.type === 'menubar');
 			menuNode.appendChild(itemNode);
+			//itemNode.jsMenu = this;
 		});
 		return menuNode;
 	}
 
-	rebuild() {
-		if(!this.node && this.type !== 'menubar') return;
-		let newNode;
-
-		if(this.type === 'menubar') {
-			newNode = this.buildMenu();
-		} else {
-			newNode = this.buildMenu(this.submenu, this.menubarSubmenu);
+	static _mouseHandler(e) {
+		let inMenubar = Menu._menubarNode != null
+                    && isDescendant(Menu._menubarNode, e.target);
+		let menubarHandler = !(e.currentTarget instanceof Document);
+		let miNode = e.target;
+		while (miNode && ! miNode.jsMenuItem)
+			miNode = miNode.parentNode;
+		/* mouseenter:
+		     if selected sibling: unhighlight (and popdown if submenu)
+		     select item and if submenu popup
+		   mouseout (or mouseleave):
+		     if (! submenu) unhighlight
+		   mousedown:
+		   if (miNode) select
+		   else popdownAll
+		*/
+		//console.log("HANDLE "+e.type+" inMB:"+inMenubar+" handler-t:"+e.currentTarget+" mbHandler:"+menubarHandler+" miNode:"+miNode);
+		if (e.type=="mouseup") {
+			/*
+			if (miNode != null) {
+			if active and not submenu: popdownAll and do click.
+			if (active and submenu) as-is.
+			if (! active) should not happen
+			} else {
+			do nothing
+			}
+			*/
 		}
-
-		if(this.node) {
-			if(this.node.parentNode) this.node.parentNode.replaceChild(newNode, this.node);
-		} else {
-			document.body.appendChild(newNode);
+		if (e.type=="mousedown" && !miNode) {
+			if (Menu._topmostMenu)
+				Menu._topmostMenu.popdownAll();
 		}
+		if ((inMenubar == menubarHandler)
+		    && miNode && e.type=="mousedown") {
+			let item = miNode.jsMenuItem;
+			item.node.classList.toggle('submenu-active');
+			if(item.submenu) {
+				if(item.node.classList.contains('submenu-active')) {
+					item.submenu.popup(item.node.offsetLeft, item.node.clientHeight, true, true);
+					item.parentMenu.currentSubmenu = item.submenu;
+				} else {
+					item.submenu.popdown();
+					item.parentMenu.currentSubmenu = null;
+				}
+			} else {
+				item.parentMenu.popdownAll();
+				if(item.type === 'checkbox')
+					item.checked = !item.checked;
 
-		this.node = newNode;
+				if(item.click) item.click(this);
+			}
+		} else {
+		}
+	}
+
+	static setApplicationMenu(menubar, parent=null) {
+		let oldNode = Menu._menubarNode;
+		if (oldNode) {
+			let parent = oldNode.parentNode;
+			if (parent != null)
+				parent.removeChild(oldNode);
+			newNode.removeEventListener('mousedown', Menu._mouseHandler, false);
+			Menu._menubarNode = null;
+		}
+		if (menubar != null) {
+			if (parent == null)
+				parent = Menu._menubarParent || document.body;
+			Menu._menubarParent = parent;
+			let newNode = menubar.buildMenu();
+			newNode.jsMenuItem = null;
+			parent.insertBefore(newNode, parent.firstChild);
+			newNode.addEventListener('mousedown', Menu._mouseHandler, false);
+			Menu._menubarNode = newNode;
+			menubar.node = newNode;
+		}
+		Menu._menubar = menubar;
 	}
 
 	get menuNode() {
@@ -243,7 +286,7 @@ class Menu {
 	}
 
 	get hasActiveSubmenu() {
-		if(this.node.querySelector('.submenu-active')) {
+		if(this.node && this.node.querySelector('.submenu-active')) {
 			return true;
 		} else {
 			return false;
@@ -278,4 +321,28 @@ class Menu {
 	}
 }
 
+/* FUTURE
+Menu._keydownListener = function(e) {
+    console.log("menu.key-down "+e.key);
+}
+Menu._keydownListening = false;
+Menu._keydownListen = function(value) {
+    if (value != Menu._keydownListening) {
+        if (value)
+            document.addEventListener('keydown', Menu._keydownListener, false);
+        else
+            document.removeEventListener('keydown', Menu._keydownListener, false);
+    }
+    Menu._keydownListening = value;
+}
+Menu._keydownListen(true);
+*/
+// FIXME these only when "active" popup
+document.addEventListener('mouseup', Menu._mouseHandler, false);
+document.addEventListener('mousedown', Menu._mouseHandler, false);
+
 export default Menu;
+// Local Variables:
+// js-indent-level: 8
+// indent-tabs-mode: t
+// End:

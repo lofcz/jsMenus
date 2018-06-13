@@ -1,12 +1,9 @@
 import Menu from '../menu';
 import isDescendant from '../is-decendant';
 import { modifierSymbols, keySymbols } from '../symbols';
-const EventEmitter2 = require('eventemitter2').EventEmitter2;
 
-
-class MenuItem extends EventEmitter2 {
+class MenuItem {
 	constructor(settings = {}) {
-		super();
 
 		const modifiersEnum = ['cmd', 'command', 'super', 'shift', 'ctrl', 'alt'];
 		const typeEnum = ['separator', 'checkbox', 'normal'];
@@ -65,7 +62,6 @@ class MenuItem extends EventEmitter2 {
 			},
 			set: (inputModifiers) => {
 				modifiers = validModifiers(inputModifiers) ? inputModifiers : modifiers;
-				this.rebuild();
 			}
 		});
 
@@ -75,7 +71,6 @@ class MenuItem extends EventEmitter2 {
 			},
 			set: (inputEnabled) => {
 				enabled = inputEnabled;
-				this.rebuild();
 			}
 		});
 
@@ -85,7 +80,6 @@ class MenuItem extends EventEmitter2 {
 			},
 			set: (inputLabel) => {
 				label = inputLabel;
-				this.rebuild();
 			}
 		});
 
@@ -95,12 +89,12 @@ class MenuItem extends EventEmitter2 {
 		this.checked = settings.checked || false;
 
 		this.key = settings.key || null;
+		this.accelerator = settings.accelerator;
 		this.node = null;
 
 		if(this.key) {
 			this.key = this.key.toUpperCase();
 		}
-
 		function validModifiers(modifiersIn = '') {
 			let modsArr = modifiersIn.split('+');
 			for(let i=0; i < modsArr; i++) {
@@ -122,33 +116,8 @@ class MenuItem extends EventEmitter2 {
 		}
 	}
 
-	_clickHandle_click() {
-		if(!this.enabled || this.submenu) return;
-
-		this.parentMenu.popdownAll();
-		if(this.type === 'checkbox') {
-			if (this.node)
-				this.node.classList.toggle('checked');
-			this.checked = !this.checked;
-		}
-
-		this.emit('click', this);
-
-		if(this.click) this.click(this);
-	}
-
-	_clickHandle_click_menubarTop() {
-		this.node.classList.toggle('submenu-active');
-
-		if(this.submenu) {
-			if(this.node.classList.contains('submenu-active')) {
-				this.submenu.popup(this.node.offsetLeft, this.node.clientHeight, true, true);
-				this.parentMenu.currentSubmenu = this.submenu;
-			} else {
-				this.submenu.popdown();
-				this.parentMenu.currentSubmenu = null;
-			}
-		}
+	toString() {
+		return this.type+"["+this.label+"]";
 	}
 
 	_mouseoverHandle_menubarTop() {
@@ -170,21 +139,18 @@ class MenuItem extends EventEmitter2 {
 		}
 	}
 
-	buildItem(menuBarTopLevel = false, rebuild = false) {
+	buildItem(menuNode, menuBarTopLevel = false) {
 		let node = document.createElement('li');
+		node.jsMenuNode = menuNode;
+		node.jsMenu = menuNode.jsMenu;
+		node.jsMenuItem = this;
 		node.classList.add('menu-item', this.type);
 
 		menuBarTopLevel = menuBarTopLevel || this.menuBarTopLevel || false;
 		this.menuBarTopLevel = menuBarTopLevel;
 
 		if(menuBarTopLevel) {
-			node.addEventListener('mousedown', this._clickHandle_click_menubarTop.bind(this));
 			node.addEventListener('mouseenter', this._mouseoverHandle_menubarTop.bind(this));
-		} else if(this.type !== 'separator') {
-			node.addEventListener('click', this._clickHandle_click.bind(this));
-			node.addEventListener('mouseup', (e) => {
-				if(e.button === 2) this._clickHandle_click();
-			});
 		}
 
 		let iconWrapNode = document.createElement('div');
@@ -240,6 +206,14 @@ class MenuItem extends EventEmitter2 {
 		if(this.key && !menuBarTopLevel) {
 			text += this.key;
 		}
+		if (this.accelerator && !menuBarTopLevel) {
+			let acc = this.accelerator;
+                    let mac = false; // FIXME
+                    let cmd = mac ? "Cmd" : "Ctrl";
+                    acc = acc.replace("CommandOrControl", cmd);
+                    acc = acc.replace("Mod+", cmd+"+");
+			text += acc;
+		}
 
 		if(!this.enabled) {
 			node.classList.add('disabled');
@@ -284,22 +258,13 @@ class MenuItem extends EventEmitter2 {
 		node.appendChild(modifierNode);
 
 		node.title = this.tooltip;
-		if(!rebuild) this.node = node;
+		this.node = node;
 		return node;
-	}
-
-	rebuild() {
-		if(!this.node && this.type !== 'separator') return;
-		let newNode;
-
-		newNode = this.buildItem(this.menuBarTopLevel, true);
-
-		if(this.node) {
-			if(this.node.parentNode) this.node.parentNode.replaceChild(newNode, this.node);
-		}
-
-		this.node = newNode;
 	}
 }
 
 export default MenuItem;
+// Local Variables:
+// js-indent-level: 8
+// indent-tabs-mode: t
+// End:

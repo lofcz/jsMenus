@@ -225,26 +225,27 @@ class Menu {
 			if (Menu._topmostMenu)
 				Menu._topmostMenu.popdownAll();
 		}
-		if ((inMenubar == menubarHandler)
-		    && miNode && e.type=="mousedown") {
+		if ((inMenubar == menubarHandler) && miNode) {
 			let item = miNode.jsMenuItem;
-			item.node.classList.toggle('submenu-active');
-			if(item.submenu) {
-				if(item.node.classList.contains('submenu-active')) {
-					item.submenu.popup(item.node.offsetLeft, item.node.clientHeight, true, true);
-					item.parentMenu.currentSubmenu = item.submenu;
-				} else {
-					item.submenu.popdown();
-					item.parentMenu.currentSubmenu = null;
+			if (e.type=="mousedown") {
+				item.node.classList.toggle('submenu-active');
+				if(item.submenu) {
+					if(item.node.classList.contains('submenu-active')) {
+						item.submenu.popup(item.node.offsetLeft, item.node.clientHeight, true, true);
+						item.parentMenu.currentSubmenu = item.submenu;
+					} else {
+						item.submenu.popdown();
+						item.parentMenu.currentSubmenu = null;
+					}
 				}
-			} else {
+			}
+			if (e.type=="mouseup" && !item.submenu) {
 				item.parentMenu.popdownAll();
 				if(item.type === 'checkbox')
 					item.checked = !item.checked;
 
 				if(item.click) item.click(this);
 			}
-		} else {
 		}
 	}
 

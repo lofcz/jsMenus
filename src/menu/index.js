@@ -100,7 +100,7 @@ class Menu {
 			menuNode = this.node;
 		} else {
 			menuNode = this.buildMenu(submenu, menubarSubmenu);
-			menuNode.jsMenuItem = this;
+			menuNode.jsMenu = this;
 			this.node = menuNode;
 
 		}

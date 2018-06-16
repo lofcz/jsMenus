@@ -93,8 +93,13 @@ class Menu {
 
 		menubarSubmenu = menubarSubmenu || this.menubarSubmenu;
 		this.menubarSubmenu = menubarSubmenu;
-		if (! Menu._topmostMenu)
+		if (! Menu._topmostMenu) {
 			Menu._topmostMenu = this;
+			let el = Menu.contextMenuParent || document.body;
+			Menu._listenerElement = el;
+			el.addEventListener('mouseup', Menu._mouseHandler, false);
+			el.addEventListener('mousedown', Menu._mouseHandler, false);
+		}
 
 		if(this.node) {
 			menuNode = this.node;
@@ -102,7 +107,6 @@ class Menu {
 			menuNode = this.buildMenu(submenu, menubarSubmenu);
 			menuNode.jsMenu = this;
 			this.node = menuNode;
-
 		}
 
 		this.items.forEach(item => {
@@ -139,15 +143,12 @@ class Menu {
 		menuNode.style.top = y + 'px';
 		menuNode.classList.add('show');
 
-		if(this.node) {
-			if(this.node.parentNode) {
-				if(menuNode === this.node) return;
-				this.node.parentNode.replaceChild(menuNode, this.node);
-			} else {
-				document.body.appendChild(this.node);
-			}
+		if(this.node.parentNode) {
+			if(menuNode === this.node) return;
+			this.node.parentNode.replaceChild(menuNode, this.node);
 		} else {
-			document.body.appendChild(menuNode);
+			let el = Menu.contextMenuParent || document.body;
+			el.appendChild(this.node);
 		}
 	}
 
@@ -156,8 +157,15 @@ class Menu {
 			this.node.parentNode.removeChild(this.node);
 			this.node = null;
 		}
-		if (this.parentMenu == null)
+		if (this.parentMenu == null) {
 			Menu._topmostMenu = null;
+			let el = Menu._listenerElement;
+			if (el) {
+				el.removeEventListener('mouseup', Menu._mouseHandler, false);
+				el.removeEventListener('mousedown', Menu._mouseHandler, false);
+				Menu._listenerElement = null;
+			}
+		}
 
 		if(this.type === 'menubar') {
 			this.clearActiveSubmenuStyling();
@@ -198,7 +206,7 @@ class Menu {
 	static _mouseHandler(e) {
 		let inMenubar = Menu._menubarNode != null
                     && isDescendant(Menu._menubarNode, e.target);
-		let menubarHandler = !(e.currentTarget instanceof Document);
+		let menubarHandler = e.currentTarget == Menu._menubarNode;
 		let miNode = e.target;
 		while (miNode && ! miNode.jsMenuItem)
 			miNode = miNode.parentNode;
@@ -324,6 +332,9 @@ class Menu {
 	}
 }
 
+// Parent node for context menu popup.  If null, document.body is the default.
+Menu.contextMenuParent = null;
+
 /* FUTURE
 Menu._keydownListener = function(e) {
     console.log("menu.key-down "+e.key);
@@ -340,9 +351,6 @@ Menu._keydownListen = function(value) {
 }
 Menu._keydownListen(true);
 */
-// FIXME these only when "active" popup
-document.addEventListener('mouseup', Menu._mouseHandler, false);
-document.addEventListener('mousedown', Menu._mouseHandler, false);
 
 export default Menu;
 // Local Variables:

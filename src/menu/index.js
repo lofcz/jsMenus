@@ -254,7 +254,7 @@ class Menu {
 				if(item.type === 'checkbox')
 					item.checked = !item.checked;
 
-				if(item.click) item.click(this);
+				if(item.click) item.click(item);
 			}
 		}
 	}

@@ -15,6 +15,8 @@ class MenuItem {
 
 		let enabled = settings.enabled;
 		if(typeof settings.enabled === 'undefined') enabled = true;
+		let visible = settings.visible;
+		if(typeof settings.visible === 'undefined') visible = true;
 
 		if(submenu) {
 			submenu.parentMenuItem = this;
@@ -71,6 +73,15 @@ class MenuItem {
 			},
 			set: (inputEnabled) => {
 				enabled = inputEnabled;
+			}
+		});
+
+		Object.defineProperty(this, 'visible', {
+			get: () => {
+				return visible;
+			},
+			set: (inputVisible) => {
+				visible = inputVisible;
 			}
 		});
 

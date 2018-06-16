@@ -185,9 +185,11 @@ class Menu {
 		menuNode.jsMenu = this;
 		this.items.forEach(item => {
 			item.parentMenu = this;
-			let itemNode = item.buildItem(menuNode,
-						      this.type === 'menubar');
-			menuNode.appendChild(itemNode);
+			if (item.visible) {
+				let itemNode = item.buildItem(menuNode,
+							      this.type === 'menubar');
+				menuNode.appendChild(itemNode);
+			}
 			//itemNode.jsMenu = this;
 		});
 		return menuNode;

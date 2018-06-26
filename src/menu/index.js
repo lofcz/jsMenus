@@ -115,6 +115,14 @@ class Menu {
 				item.submenu.popdown();
 			}
 		});
+		if(this.node.parentNode) {
+			if(menuNode === this.node) return;
+			this.node.parentNode.replaceChild(menuNode, this.node);
+		} else {
+			let el = Menu.contextMenuParent || document.body;
+			el.appendChild(this.node);
+		}
+
 		let width = menuNode.clientWidth;
 		let height = menuNode.clientHeight;
 
@@ -122,7 +130,7 @@ class Menu {
 			setRight = true;
 			if(submenu) {
 				let node = this.parentMenuItem.node;
-				x = node.offsetWidth + ((window.innerWidth - node.offsetLeft) - node.offsetWidth) - 2;
+				x = window.innerWidth - node.parentNode.offsetLeft + 2;
 			} else {
 				x = 0;
 			}
@@ -143,13 +151,6 @@ class Menu {
 		menuNode.style.top = y + 'px';
 		menuNode.classList.add('show');
 
-		if(this.node.parentNode) {
-			if(menuNode === this.node) return;
-			this.node.parentNode.replaceChild(menuNode, this.node);
-		} else {
-			let el = Menu.contextMenuParent || document.body;
-			el.appendChild(this.node);
-		}
 	}
 
 	popdown() {

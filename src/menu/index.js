@@ -108,13 +108,8 @@ class Menu {
 			menuNode.jsMenu = this;
 			this.node = menuNode;
 		}
+		Menu._currentMenuNode = menuNode;
 
-		this.items.forEach(item => {
-			if(item.submenu) {
-				item.node.classList.remove('submenu-active');
-				item.submenu.popdown();
-			}
-		});
 		if(this.node.parentNode) {
 			if(menuNode === this.node) return;
 			this.node.parentNode.replaceChild(menuNode, this.node);
@@ -155,6 +150,9 @@ class Menu {
 
 	popdown() {
 		if(this.node && this.type !== 'menubar') {
+			Menu._currentMenuNode = this.node.parentMenuNode;
+			if (this.menubarSubmenu)
+				this.node.menuItem.classList.remove('submenu-active');
 			this.node.parentNode.removeChild(this.node);
 			this.node = null;
 		}
@@ -192,6 +190,7 @@ class Menu {
 		if(menubarSubmenu) menuNode.classList.add('menubar-submenu');
 
 		menuNode.jsMenu = this;
+		menuNode.parentMenuNode = Menu._currentMenuNode;
 		this.items.forEach(item => {
 			item.parentMenu = this;
 			if (item.visible) {
@@ -242,8 +241,7 @@ class Menu {
 				item.node.classList.toggle('submenu-active');
 				if(item.submenu) {
 					if(item.node.classList.contains('submenu-active')) {
-						item.submenu.popup(item.node.offsetLeft, item.node.clientHeight, true, true);
-						item.parentMenu.currentSubmenu = item.submenu;
+						item.popupSubmenu(item.node.offsetLeft, item.node.clientHeight, true);
 					} else {
 						item.submenu.popdown();
 						item.parentMenu.currentSubmenu = null;
@@ -336,22 +334,30 @@ class Menu {
 // Parent node for context menu popup.  If null, document.body is the default.
 Menu.contextMenuParent = null;
 
-/* FUTURE
+Menu._currentMenuNode = null;
+Menu._currentMenuItemNode = null;
+
 Menu._keydownListener = function(e) {
-    console.log("menu.key-down "+e.key);
+	if (Menu._currentMenuNode) {
+		switch (e.keyCode) {
+		case 27: // Escape
+			e.preventDefault();
+			Menu._currentMenuNode.jsMenu.popdown();
+			break;
+		}
+	}
 }
 Menu._keydownListening = false;
 Menu._keydownListen = function(value) {
     if (value != Menu._keydownListening) {
         if (value)
-            document.addEventListener('keydown', Menu._keydownListener, false);
+            document.addEventListener('keydown', Menu._keydownListener, true);
         else
-            document.removeEventListener('keydown', Menu._keydownListener, false);
+            document.removeEventListener('keydown', Menu._keydownListener, true);
     }
     Menu._keydownListening = value;
 }
 Menu._keydownListen(true);
-*/
 
 export default Menu;
 // Local Variables:

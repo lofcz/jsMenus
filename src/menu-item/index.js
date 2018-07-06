@@ -132,6 +132,11 @@ class MenuItem {
 	}
 
 	_mouseoverHandle_menubarTop() {
+		let pmenu = this.parentMenu;
+		if (pmenu.activeItemNode) {
+			pmenu.activeItemNode.classList.remove('active');
+			pmenu.activeItemNode = null;
+		}
 		if(this.parentMenu.hasActiveSubmenu) {
 			if(this.node.classList.contains('submenu-active')) return;
 
@@ -144,8 +149,7 @@ class MenuItem {
 			}
 
 			if(this.submenu) {
-				this.submenu.popup(this.node.offsetLeft, this.node.clientHeight, true, true);
-				this.parentMenu.currentSubmenu = this.submenu;
+				this.popupSubmenu(this.node.offsetLeft, this.node.clientHeight, true);
 			}
 		}
 	}
@@ -195,11 +199,17 @@ class MenuItem {
 		if(this.submenu && !menuBarTopLevel) {
 			text = '▶︎';
 
-			node.addEventListener('mouseout', (e) => {
+			node.addEventListener('mouseleave', (e) => {
 				if(node !== e.target) {
 					if(!isDescendant(node, e.target)) this.submenu.popdown();
 				}
-				node.classList.add('submenu-active');
+			});
+		} else {
+			node.addEventListener('mouseleave', (e) => {
+				let pmenu = this.parentMenu;
+				if (pmenu.activeItemNode)
+					pmenu.activeItemNode.classList.remove('active');
+				pmenu.activeItemNode = null;
 			});
 		}
 
@@ -232,7 +242,12 @@ class MenuItem {
 
 		if(!menuBarTopLevel) {
 			node.addEventListener('mouseenter', () => {
-			    if(this.parentMenu.currentSubmenu) {
+				let pmenu = this.parentMenu;
+				if (pmenu.activeItemNode) {
+					pmenu.activeItemNode.classList.remove('active');
+					pmenu.activeItemNode = null;
+				}
+				if(this.parentMenu.currentSubmenu) {
 					this.parentMenu.currentSubmenu.popdown();
 					this.parentMenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
 				    this.parentMenu.currentSubmenu = null;
@@ -249,8 +264,11 @@ class MenuItem {
 
 					let x = parentNode.offsetWidth + parentNode.offsetLeft - 2;
 					let y = parentNode.offsetTop + node.offsetTop - 4;
-					this.submenu.popup(x, y, true, menuBarTopLevel);
-				}
+					this.popupSubmenu(x, y, menuBarTopLevel);
+					node.classList.add('submenu-active');
+				} else
+					node.classList.add('active');
+				this.parentMenu.activeItemNode = this.node;
 			});
 		}
 
@@ -271,6 +289,12 @@ class MenuItem {
 		node.title = this.tooltip;
 		this.node = node;
 		return node;
+	}
+
+	popupSubmenu(x, y, menubarSubmenu = false) {
+		this.submenu.popup(x, y, true, menubarSubmenu);
+		this.submenu.node.menuItem = this.node;
+		this.parentMenu.currentSubmenu = this.submenu;
 	}
 }
 

@@ -41,18 +41,18 @@ its elements, rather than just hiding it with css.
 ### Building
 
 Install a bunch of dependencies using `npm` (FIXME)
-and then do `npm run build`.  Then you can use
+and then do `npm run build`.  Then you can load
 `dist/nwjs-menu-browser.js` and `dist/nwjs-menu-browser.css`
-in your browser.  Then you can use `nwjsMenuBrowser.Menu`
+in your browser, and then use `nwjsMenuBrowser.Menu`
 and  `nwjsMenuBrowser.MenuItem`.
 
 ### TODO
 * Finish basic keyboard navigation.
 * Avoid build dependencies on `npm` or `webpack`.
-* Test and polish style on multiple platform, particultly MacOS.
+* Test and polish style on multiple platforms, including MacOS.
 * Internal cleanup - Menu or MenuItem should not have properties
-that depend on display/navigation state,  Specifically, there
-should be no pointers to parent or DOM node, not even temporarily.
+that depend on display/navigation state. Specifically, there
+should be no pointers to the parent or DOM node, not even temporarily.
 
 ## Orginal README
 

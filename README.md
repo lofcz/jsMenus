@@ -1,5 +1,61 @@
 # NWJS Menu Browser
 
+This is Per Bothner's fork of Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
+It implements menus (including both menubar and contextmenu)
+using plain JavaScript that should work in all modern browsers without
+requiring any special permissions or server support.
+The API is similar (and mostly compatible) with that of NWJS and Electron.
+
+This makes possible applications that look and feel like native
+applications, using web APIs (HTML, JavaScript, CSS, DOM),
+without the overhead of something like Electron.
+You can use any "embedded" bare-bones web browser, including
+the Chrome browser with the `--app` option.
+
+As an example, the [DomTerm](https;//domterm.org) terminal emulator
+has a "back-end" written in C, which communicates (using http and
+websockets) with any modern browser.  It can optionally run under
+Electron, and the code for creating menus (see `hlib/domterm-menus.js`)
+is mostly the same whether using Electron to create menus, or using this
+library in a generic browser.
+
+Advantages and changes of this fork compared to the original:
+
+* Menu-items and menus can be shared between menus.
+* Preliminary support for keyboard navigation (only Escape works so far).
+* Some changes to work better with libraries such as GoldenLayout
+(for panes and tab) and full-screen.
+* Change menubar API - you need to explicitly call `Menu.setApplicationMenu`
+(like Electron) - creating the Menu objects is not sufficient.
+* Pass MenuItem as (first) argument to click handler (like Electron).
+* Support `visible` property on MenuItems (like Electron).
+* Support `accelerator` property (like Electron) as an alernative to
+`key` plus `modifiers`.
+* Polishing so it works more like other menu systems, including
+various bug fixes, and working smoothly under Firefox.
+* Styling changes to make it look more native-looking (on Linux or Windows);
+this is probably a regression on Mac (needs testing).
+* Internal changes, such as when a menu is no longer shown, we remove
+its elements, rather than just hiding it with css.
+
+### Building
+
+Install a bunch of dependencies using `npm` (FIXME)
+and then do `npm run build`.  Then you can use
+`dist/nwjs-menu-browser.js` and `dist/nwjs-menu-browser.css`
+in your browser.  Then you can use `nwjsMenuBrowser.Menu`
+and  `nwjsMenuBrowser.MenuItem`.
+
+### TODO
+* Finish basic keyboard navigation.
+* Avoid build dependencies on `npm` or `webpack`.
+* Test and polish style on multiple platform, particultly MacOS.
+* Internal cleanup - Menu or MenuItem should not have properties
+that depend on display/navigation state,  Specifically, there
+should be no pointers to parent or DOM node, not even temporarily.
+
+## Orginal README
+
 Browser Polyfill for [NWJS](http://docs.nwjs.io/en/latest/) [Menu](http://docs.nwjs.io/en/latest/References/Menu/) and [MenuItem](http://docs.nwjs.io/en/latest/References/MenuItem/).
 
 ## Why

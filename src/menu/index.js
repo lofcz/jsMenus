@@ -66,7 +66,6 @@ class Menu {
 		};
 
 		this.node = null;
-		this.currentSubmenu = null;
 		this.parentMenuItem = null;
 
 		function isValidType(typeIn = '', debug = false) {
@@ -149,6 +148,13 @@ class Menu {
 	}
 
 	popdown() {
+		this.items.forEach(item => {
+			if(item.submenu) {
+				item.submenu.popdown();
+			} else {
+				item.node = null;
+			}
+		});
 		if(this.node && this.type !== 'menubar') {
 			Menu._currentMenuNode = this.node.parentMenuNode;
 			if (this.menubarSubmenu)
@@ -169,14 +175,6 @@ class Menu {
 		if(this.type === 'menubar') {
 			this.clearActiveSubmenuStyling();
 		}
-
-		this.items.forEach(item => {
-			if(item.submenu) {
-				item.submenu.popdown();
-			} else {
-				item.node = null;
-			}
-		});
 	}
 
 	popdownAll() {
@@ -239,21 +237,20 @@ class Menu {
 			let item = miNode.jsMenuItem;
 			if (e.type=="mousedown") {
 				item.node.classList.toggle('submenu-active');
+				// FIXME use select method
 				if(item.submenu) {
 					if(item.node.classList.contains('submenu-active')) {
+						item.parentMenu.node.activeItemNode = item.node;
 						item.popupSubmenu(item.node.offsetLeft, item.node.clientHeight, true);
 					} else {
 						item.submenu.popdown();
-						item.parentMenu.currentSubmenu = null;
+						item.parentMenu.node.currentSubmenu = null;
+						item.parentMenu.node.activeItemNode = null;
 					}
 				}
 			}
-			if (e.type=="mouseup" && !item.submenu) {
-				item.parentMenu.popdownAll();
-				if(item.type === 'checkbox')
-					item.checked = !item.checked;
-
-				if(item.click) item.click(item);
+			if (e.type=="mouseup") {
+				item.doit();
 			}
 		}
 	}
@@ -295,14 +292,6 @@ class Menu {
 		}
 	}
 
-	get hasActiveSubmenu() {
-		if(this.node && this.node.querySelector('.submenu-active')) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	get topmostMenu() {
 		let menu = this;
 
@@ -335,14 +324,75 @@ class Menu {
 Menu.contextMenuParent = null;
 
 Menu._currentMenuNode = null;
-Menu._currentMenuItemNode = null;
 
 Menu._keydownListener = function(e) {
-	if (Menu._currentMenuNode) {
+	function nextItem(menuNode, curNode, forwards) {
+		let nullSeen = false;
+		let next = curNode;
+		for (;;) {
+			next = !next ? null
+				: forwards ? next.nextSibling
+				: next.previousSibling;
+			if (! next) {
+				next = forwards ? menuNode.firstChild
+					: menuNode.lastChild;
+				if (nullSeen || !next)
+					return null;
+				nullSeen = true;
+			}
+			if (next instanceof Element
+			    && next.classList.contains("menu-item")
+			    && ! (next.classList.contains("disabled")))
+				return next;
+		}
+	}
+	function nextMenu(forwards) {
+		let menubarNode = nwjsMenuBrowser.Menu._topmostMenu.parentMenu.node;
+		let next = nextItem(menubarNode,
+				    menubarNode.activeItemNode,
+				    forwards);
+		if (next)
+		    next.jsMenuItem.select(next, true, true, true);
+		return next;
+
+	}
+	let menuNode = Menu._currentMenuNode
+	if (menuNode) {
+		let active = menuNode.activeItemNode;
 		switch (e.keyCode) {
 		case 27: // Escape
+		case 37: // Left
 			e.preventDefault();
-			Menu._currentMenuNode.jsMenu.popdown();
+			e.stopPropagation();
+			if (e.keyCode == 37
+			    && menuNode.jsMenu.menubarSubmenu
+			    && nextMenu(false))
+				return;
+			menuNode.jsMenu.popdown();
+			break;
+		case 13: // Enter
+			e.preventDefault();
+			e.stopPropagation();
+			if (active)
+				active.jsMenuItem.doit();
+			break;
+		case 39: // Right
+			e.preventDefault();
+			e.stopPropagation();
+			if (active && active.jsMenuItem.submenu)
+				active.jsMenuItem.selectSubmenu(active);
+			else if (Menu._topmostMenu.menubarSubmenu)
+				nextMenu(true);
+			break;
+		case 38: // Up
+		case 40: // Down
+			e.preventDefault();
+			e.stopPropagation();
+			let next = nextItem(menuNode,
+					    menuNode.activeItemNode,
+					    e.keyCode == 40);
+			if (next)
+				next.jsMenuItem.select(next, true, false);
 			break;
 		}
 	}

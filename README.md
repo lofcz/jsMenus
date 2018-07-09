@@ -22,7 +22,7 @@ library in a generic browser.
 Advantages and changes of this fork compared to the original:
 
 * Menu-items and menus can be shared between menus.
-* Preliminary support for keyboard navigation (only Escape works so far).
+* Keyboard navigation (using arrow keys, Escape, and Enter).
 * Some changes to work better with libraries such as GoldenLayout
 (for panes and tab) and full-screen.
 * Change menubar API - you need to explicitly call `Menu.setApplicationMenu`
@@ -47,7 +47,6 @@ in your browser, and then use `nwjsMenuBrowser.Menu`
 and  `nwjsMenuBrowser.MenuItem`.
 
 ### TODO
-* Finish basic keyboard navigation.
 * Avoid build dependencies on `npm` or `webpack`.
 * Test and polish style on multiple platforms, including MacOS.
 * Internal cleanup - Menu or MenuItem should not have properties

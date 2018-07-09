@@ -132,26 +132,63 @@ class MenuItem {
 	}
 
 	_mouseoverHandle_menubarTop() {
-		let pmenu = this.parentMenu;
+		let pmenu = this.parentMenu.node;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
 			pmenu.activeItemNode = null;
 		}
-		if(this.parentMenu.hasActiveSubmenu) {
+		if (pmenu && pmenu.querySelector('.submenu-active')) {
 			if(this.node.classList.contains('submenu-active')) return;
 
 			this.parentMenu.clearActiveSubmenuStyling(this.node);
 			this.node.classList.add('submenu-active');
-
-			if(this.parentMenu.currentSubmenu) {
-				this.parentMenu.currentSubmenu.popdown();
-				this.parentMenu.currentSubmenu = null;
-			}
-
-			if(this.submenu) {
-				this.popupSubmenu(this.node.offsetLeft, this.node.clientHeight, true);
-			}
+			this.select(this.node, true, true, true);
 		}
+	}
+
+	doit() {
+		if (! this.submenu) {
+			this.parentMenu.popdownAll();
+			if(this.type === 'checkbox')
+				this.checked = !this.checked;
+			if(this.click) this.click(this);
+		}
+	}
+
+	select(node, turnOn, popupSubmenu, menubarSubmenu = false) {
+		let pmenu = this.parentMenu.node;
+		if (pmenu.activeItemNode) {
+			pmenu.activeItemNode.classList.remove('active');
+			pmenu.activeItemNode = null;
+		}
+		if(pmenu.currentSubmenu) {
+			pmenu.currentSubmenu.popdown();
+			pmenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
+			pmenu.currentSubmenu = null;
+                }
+		if(this.submenu && popupSubmenu)
+			this.selectSubmenu(node, menubarSubmenu);
+		else
+			node.classList.add('active');
+		this.parentMenu.node.activeItemNode = this.node;
+	}
+
+	selectSubmenu(node, menubarSubmenu) {
+		this.parentMenu.node.currentSubmenu = this.submenu;
+		if(this.submenu.node)
+			return;
+
+		let parentNode = node.parentNode;
+		let x, y;
+		if (menubarSubmenu) {
+			x = node.offsetLeft;
+			y = node.clientHeight;
+		} else {
+			x = parentNode.offsetWidth + parentNode.offsetLeft - 2;
+			y = parentNode.offsetTop + node.offsetTop - 4;
+		}
+		this.popupSubmenu(x, y, menubarSubmenu);
+		node.classList.add('submenu-active');
 	}
 
 	buildItem(menuNode, menuBarTopLevel = false) {
@@ -204,13 +241,6 @@ class MenuItem {
 					if(!isDescendant(node, e.target)) this.submenu.popdown();
 				}
 			});
-		} else {
-			node.addEventListener('mouseleave', (e) => {
-				let pmenu = this.parentMenu;
-				if (pmenu.activeItemNode)
-					pmenu.activeItemNode.classList.remove('active');
-				pmenu.activeItemNode = null;
-			});
 		}
 
 		if(this.modifiers && !menuBarTopLevel) {
@@ -242,33 +272,7 @@ class MenuItem {
 
 		if(!menuBarTopLevel) {
 			node.addEventListener('mouseenter', () => {
-				let pmenu = this.parentMenu;
-				if (pmenu.activeItemNode) {
-					pmenu.activeItemNode.classList.remove('active');
-					pmenu.activeItemNode = null;
-				}
-				if(this.parentMenu.currentSubmenu) {
-					this.parentMenu.currentSubmenu.popdown();
-					this.parentMenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
-				    this.parentMenu.currentSubmenu = null;
-                                }
-				if(this.submenu) {
-					this.parentMenu.currentSubmenu = this.submenu;
-					if(this.submenu.node) {
-						if(this.submenu.node.classList.contains('show')) {
-							return;
-						}
-					}
-
-					let parentNode = node.parentNode;
-
-					let x = parentNode.offsetWidth + parentNode.offsetLeft - 2;
-					let y = parentNode.offsetTop + node.offsetTop - 4;
-					this.popupSubmenu(x, y, menuBarTopLevel);
-					node.classList.add('submenu-active');
-				} else
-					node.classList.add('active');
-				this.parentMenu.activeItemNode = this.node;
+				this.select(node, true, true);
 			});
 		}
 
@@ -294,7 +298,7 @@ class MenuItem {
 	popupSubmenu(x, y, menubarSubmenu = false) {
 		this.submenu.popup(x, y, true, menubarSubmenu);
 		this.submenu.node.menuItem = this.node;
-		this.parentMenu.currentSubmenu = this.submenu;
+		this.parentMenu.node.currentSubmenu = this.submenu;
 	}
 }
 

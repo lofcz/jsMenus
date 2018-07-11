@@ -389,7 +389,7 @@ Menu._keydownListener = function(e) {
 				    menubarNode.activeItemNode,
 				    forwards);
 		if (next)
-		    next.jsMenuItem.select(next, true, true);
+		    next.jsMenuItem.select(next, true, true, true);
 		return next;
 
 	}
@@ -429,7 +429,7 @@ Menu._keydownListener = function(e) {
 					    menuNode.activeItemNode,
 					    e.keyCode == 40);
 			if (next)
-				next.jsMenuItem.select(next, false);
+				next.jsMenuItem.select(next, true, false);
 			break;
 		}
 	}
@@ -609,7 +609,7 @@ class MenuItem {
 
 			this.parentMenu.clearActiveSubmenuStyling(this.node);
 			this.node.classList.add('submenu-active');
-			this.select(this.node, true, true);
+			this.select(this.node, true, true, true);
 		}
 	}
 
@@ -622,7 +622,7 @@ class MenuItem {
 		}
 	}
 
-	select(node, popupSubmenu, menubarSubmenu = false) {
+	select(node, turnOn, popupSubmenu, menubarSubmenu = false) {
 		let pmenu = this.parentMenu.node;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
@@ -740,7 +740,7 @@ class MenuItem {
 
 		if(!menuBarTopLevel) {
 			node.addEventListener('mouseenter', () => {
-				this.select(node, true);
+				this.select(node, true, true);
 			});
 		}
 

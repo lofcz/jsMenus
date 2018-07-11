@@ -268,7 +268,7 @@ class Menu {
 			let parent = oldNode.parentNode;
 			if (parent != null)
 				parent.removeChild(oldNode);
-			newNode.removeEventListener('mousedown', Menu._mouseHandler, false);
+			oldNode.removeEventListener('mousedown', Menu._mouseHandler, false);
 			Menu._menubarNode = null;
 		}
 		if (menubar != null) {

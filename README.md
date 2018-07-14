@@ -1,4 +1,4 @@
-# NWJS Menu Browser
+# Menu in JavaScript
 
 This is Per Bothner's fork of Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
 It implements menus (including both menubar and contextmenu)
@@ -41,6 +41,15 @@ its elements, rather than just hiding it with css.
 ### Using
 
 Just load or require `nwjs-menu-browser.js` and `nwjs-menu-browser.css`.
+
+### Screenshots
+
+This shows the context menu for the [DomTerm terminal emulator](https://domterm.org).
+DomTerm is started using the `--chrome-app` flag,
+which starts the Google Chrome browser in "application mode",
+without the default "chrome" (location bar etc).
+
+![domterm-menu-bar](./example-assets/images/domterm-context-menu.png)
 
 ### TODO
 * Test and polish style on multiple platforms, including MacOS.

@@ -1,10 +1,10 @@
-# Menu in JavaScript
+# Menus in JavaScript
 
-This is Per Bothner's fork of Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
-It implements menus (including both menubar and contextmenu)
-using plain JavaScript that should work in all modern browsers without
-requiring any special permissions or server support.
+This is a library for menus (both menubars and context-menus),
+implemeted using plain JavaScript that should work in all modern browsers
+without requiring any special permissions or server support.
 The API is similar (and mostly compatible) with that of NWJS and Electron.
+It is based on Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
 
 This makes possible applications that look and feel like native
 applications, using web APIs (HTML, JavaScript, CSS, DOM),
@@ -12,14 +12,14 @@ without the overhead of something like Electron.
 You can use any "embedded" bare-bones web browser, including
 the Chrome browser with the `--app` option.
 
-As an example, the [DomTerm](https;//domterm.org) terminal emulator
+As an example, the [DomTerm](https://domterm.org) terminal emulator
 has a "back-end" written in C, which communicates (using http and
 websockets) with any modern browser.  It can optionally run under
 Electron, and the code for creating menus (see `hlib/domterm-menus.js`)
 is mostly the same whether using Electron to create menus, or using this
 library in a generic browser.
 
-Advantages and changes of this fork compared to the original:
+Advantages and changes compared to the original `mwjs-menu-browser`:
 
 * Menu-items and menus can be shared between menus.
 * Keyboard navigation (using arrow keys, Escape, and Enter).
@@ -27,7 +27,7 @@ Advantages and changes of this fork compared to the original:
 (for panes and tab) and full-screen.
 * Change menubar API - you need to explicitly call `Menu.setApplicationMenu`
 (like Electron) - creating the Menu objects is not sufficient.
-* Pass MenuItem as (first) argument to click handler (like Electron).
+* Passes MenuItem as (first) argument to click handler (like Electron).
 * Support `visible` property on MenuItems (like Electron).
 * Support `accelerator` property (like Electron) as an alernative to
 `key` plus `modifiers`.

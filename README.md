@@ -40,7 +40,7 @@ its elements, rather than just hiding it with css.
 
 ### Using
 
-Just load or require `nwjs-menu-browser.js` and `nwjs-menu-browser.css`.
+Just load or require `jsMenus.js` and `jsMenus.css`.
 
 ### Screenshots
 

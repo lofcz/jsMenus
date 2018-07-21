@@ -179,7 +179,8 @@ class Menu {
 	}
 
 	buildMenu(submenu = false, menubarSubmenu = false) {
-		let menuNode = this.menuNode;
+		let menuNode = document.createElement('ul');
+		menuNode.classList.add('nwjs-menu', this.type);
 		if(submenu) menuNode.classList.add('submenu');
 		if(menubarSubmenu) menuNode.classList.add('menubar-submenu');
 
@@ -285,12 +286,6 @@ class Menu {
 		Menu._menubar = menubar;
 	}
 
-	get menuNode() {
-		let node = document.createElement('ul');
-		node.classList.add('nwjs-menu', this.type);
-		return node;
-	}
-
 	get parentMenu() {
 		if(this.parentMenuItem) {
 			return this.parentMenuItem.parentMenu;
@@ -379,6 +374,7 @@ Menu._keydownListener = function(e) {
 			}
 			if (next instanceof Element
 			    && next.classList.contains("menu-item")
+			    && next.jsMenuItem.type != 'separator'
 			    && ! (next.classList.contains("disabled")))
 				return next;
 		}
@@ -449,28 +445,6 @@ Menu._keydownListen(true);
 class MenuItem {
 	constructor(settings = {}) {
 
-		const modifierSymbols = {
-			shift: '⇧',
-			ctrl: '⌃',
-			alt: '⌥',
-			cmd: '⌘',
-			super: '⌘',
-			command: '⌘'
-		};
-
-		const keySymbols = {
-			up: '↑',
-			esc: '⎋',
-			tab: '⇥',
-			left: '←',
-			down: '↓',
-			right: '→',
-			pageUp: '⇞',
-			escape: '⎋',
-			pageDown: '⇟',
-			backspace: '⌫',
-			space: 'Space'
-		};
 
 		const modifiersEnum = ['cmd', 'command', 'super', 'shift', 'ctrl', 'alt'];
 		const typeEnum = ['separator', 'checkbox', 'normal'];
@@ -626,13 +600,13 @@ class MenuItem {
 		let pmenu = this.parentMenu.node;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
+			pmenu.activeItemNode.classList.remove('submenu-active');
 			pmenu.activeItemNode = null;
 		}
 		if(pmenu.currentSubmenu) {
 			pmenu.currentSubmenu.popdown();
-			pmenu.currentSubmenu.parentMenuItem.node.classList.remove('submenu-active');
 			pmenu.currentSubmenu = null;
-                }
+		}
 		if(this.submenu && popupSubmenu)
 			this.selectSubmenu(node, menubarSubmenu);
 		else
@@ -712,14 +686,17 @@ class MenuItem {
 		}
 
 		if(this.modifiers && !menuBarTopLevel) {
-			let mods = this.modifiers.split('+');
+			if (MenuItem.useModifierSymbols) {
+				let mods = this.modifiers.split('+');
 
-			// Looping this way to keep order of symbols - required by macOS
-			for(let symbol in modifierSymbols) {
-				if(mods.indexOf(symbol) > -1) {
-					text += modifierSymbols[symbol];
+				// Looping this way to keep order of symbols - required by macOS
+				for(let symbol in MenuItem.modifierSymbols) {
+					if(mods.indexOf(symbol) > -1) {
+						text += MenuItem.modifierSymbols[symbol];
+					}
 				}
-			}
+			} else
+				text += this.modifiers + "+";
 		}
 
 		if(this.key && !menuBarTopLevel) {
@@ -738,7 +715,7 @@ class MenuItem {
 			node.classList.add('disabled');
 		}
 
-		if(!menuBarTopLevel) {
+		if(!menuBarTopLevel && this.type != 'separator') {
 			node.addEventListener('mouseenter', () => {
 				this.select(node, true, true);
 			});
@@ -769,6 +746,32 @@ class MenuItem {
 		this.parentMenu.node.currentSubmenu = this.submenu;
 	}
 }
+
+MenuItem.modifierSymbols = {
+	shift: '⇧',
+	ctrl: '⌃',
+	alt: '⌥',
+	cmd: '⌘',
+	super: '⌘',
+	command: '⌘'
+};
+
+MenuItem.keySymbols = {
+	up: '↑',
+	esc: '⎋',
+	tab: '⇥',
+	left: '←',
+	down: '↓',
+	right: '→',
+	pageUp: '⇞',
+	escape: '⎋',
+	pageDown: '⇟',
+	backspace: '⌫',
+	space: 'Space'
+};
+MenuItem.useModifierSymbols =
+	(typeof navigator != "undefined" ? /Mac/.test(navigator.platform)
+         : typeof os != "undefined" ? os.platform() == "darwin" : false);
 
 if (typeof module !== "undefined" && module.exports) {
 	module.exports = { Menu: Menu, MenuItem: MenuItem };

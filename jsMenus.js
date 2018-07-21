@@ -24,7 +24,6 @@ class Menu {
 				console.error('appended item must be an instance of MenuItem');
 				return false;
 			}
-			item.parentMenu = this;
 			let index = items.push(item);
 			return index;
 		};
@@ -36,7 +35,6 @@ class Menu {
 			}
 
 			items.splice(index, 0, item);
-			item.parentMenu = this;
 			return true;
 		};
 
@@ -62,7 +60,6 @@ class Menu {
 		};
 
 		this.node = null;
-		this.parentMenuItem = null;
 
 		function isValidType(typeIn = '', debug = false) {
 			if(typeEnum.indexOf(typeIn) < 0) {
@@ -79,11 +76,10 @@ class Menu {
 		return false;
 	}
 
-	popup(x, y, submenu = false, menubarSubmenu = false) {
-		let menuNode;
+	popup(x, y, itemNode = null, menubarSubmenu = false) {
 		let setRight = false;
 
-		submenu = submenu || this.submenu;
+		let submenu = itemNode != null || this.submenu;
 		this.submenu = menubarSubmenu;
 
 		menubarSubmenu = menubarSubmenu || this.menubarSubmenu;
@@ -96,13 +92,9 @@ class Menu {
 			el.addEventListener('mousedown', Menu._mouseHandler, false);
 		}
 
-		if(this.node) {
-			menuNode = this.node;
-		} else {
-			menuNode = this.buildMenu(submenu, menubarSubmenu);
-			menuNode.jsMenu = this;
-			this.node = menuNode;
-		}
+		let menuNode = this.buildMenu(submenu, menubarSubmenu);
+		menuNode.jsMenu = this;
+		this.node = menuNode;
 		Menu._currentMenuNode = menuNode;
 
 		if(this.node.parentNode) {
@@ -119,8 +111,7 @@ class Menu {
 		if((x + width) > window.innerWidth) {
 			setRight = true;
 			if(submenu) {
-				let node = this.parentMenuItem.node;
-				x = window.innerWidth - node.parentNode.offsetLeft + 2;
+				x = window.innerWidth - itemNode.parentNode.offsetLeft + 2;
 			} else {
 				x = 0;
 			}
@@ -140,7 +131,6 @@ class Menu {
 
 		menuNode.style.top = y + 'px';
 		menuNode.classList.add('show');
-
 	}
 
 	popdown() {
@@ -158,7 +148,7 @@ class Menu {
 			this.node.parentNode.removeChild(this.node);
 			this.node = null;
 		}
-		if (this.parentMenu == null) {
+		if (this == Menu._topmostMenu) {
 			Menu._topmostMenu = null;
 			let el = Menu._listenerElement;
 			if (el) {
@@ -173,8 +163,8 @@ class Menu {
 		}
 	}
 
-	popdownAll() {
-		this.topmostMenu.popdown();
+	static popdownAll() {
+		Menu._topmostMenu.popdown();
 		return;
 	}
 
@@ -187,13 +177,11 @@ class Menu {
 		menuNode.jsMenu = this;
 		menuNode.parentMenuNode = Menu._currentMenuNode;
 		this.items.forEach(item => {
-			item.parentMenu = this;
 			if (item.visible) {
 				let itemNode = item.buildItem(menuNode,
 							      this.type === 'menubar');
 				menuNode.appendChild(itemNode);
 			}
-			//itemNode.jsMenu = this;
 		});
 		return menuNode;
 	}
@@ -239,7 +227,7 @@ class Menu {
 		}
 		if (e.type=="mousedown" && !miNode) {
 			if (Menu._topmostMenu)
-				Menu._topmostMenu.popdownAll();
+				Menu.popdownAll();
 		}
 		if ((inMenubar == menubarHandler) && miNode) {
 			let item = miNode.jsMenuItem;
@@ -248,12 +236,13 @@ class Menu {
 				// FIXME use select method
 				if(item.submenu) {
 					if(item.node.classList.contains('submenu-active')) {
-						item.parentMenu.node.activeItemNode = item.node;
+						miNode.jsMenu.node.activeItemNode = item.node;
+
 						item.popupSubmenu(item.node.offsetLeft, item.node.clientHeight, true);
 					} else {
 						item.submenu.popdown();
-						item.parentMenu.node.currentSubmenu = null;
-						item.parentMenu.node.activeItemNode = null;
+						miNode.jsMenu.node.currentSubmenu = null;
+						miNode.jsMenu.node.activeItemNode = null;
 					}
 				}
 			}
@@ -284,26 +273,6 @@ class Menu {
 			menubar.node = newNode;
 		}
 		Menu._menubar = menubar;
-	}
-
-	get parentMenu() {
-		if(this.parentMenuItem) {
-			return this.parentMenuItem.parentMenu;
-		} else {
-			return undefined;
-		}
-	}
-
-	get topmostMenu() {
-		let menu = this;
-
-		while(menu.parentMenu) {
-			if(menu.parentMenu) {
-				menu = menu.parentMenu;
-			}
-		}
-
-		return menu;
 	}
 
 	clearActiveSubmenuStyling(notThisNode) {
@@ -379,8 +348,8 @@ Menu._keydownListener = function(e) {
 				return next;
 		}
 	}
-	function nextMenu(forwards) {
-		let menubarNode = Menu._topmostMenu.parentMenu.node;
+	function nextMenu(menuNode, forwards) {
+		let menubarNode = menuNode.menuItem.parentNode;
 		let next = nextItem(menubarNode,
 				    menubarNode.activeItemNode,
 				    forwards);
@@ -399,7 +368,7 @@ Menu._keydownListener = function(e) {
 			e.stopPropagation();
 			if (e.keyCode == 37
 			    && menuNode.jsMenu.menubarSubmenu
-			    && nextMenu(false))
+			    && nextMenu(menuNode, false))
 				return;
 			menuNode.jsMenu.popdown();
 			break;
@@ -415,7 +384,7 @@ Menu._keydownListener = function(e) {
 			if (active && active.jsMenuItem.submenu)
 				active.jsMenuItem.selectSubmenu(active);
 			else if (Menu._topmostMenu.menubarSubmenu)
-				nextMenu(true);
+				nextMenu(menuNode, true);
 			break;
 		case 38: // Up
 		case 40: // Down
@@ -459,10 +428,6 @@ class MenuItem {
 		let visible = settings.visible;
 		if(typeof settings.visible === 'undefined') visible = true;
 
-		if(submenu) {
-			submenu.parentMenuItem = this;
-		}
-
 		Object.defineProperty(this, 'type', {
 			get: () => {
 				return type;
@@ -480,7 +445,6 @@ class MenuItem {
 					return;
 				} else {
 					submenu = inputMenu;
-					submenu.parentMenuItem = this;
 				}
 			}
 		});
@@ -573,7 +537,7 @@ class MenuItem {
 	}
 
 	_mouseoverHandle_menubarTop() {
-		let pmenu = this.parentMenu.node;
+		let pmenu = this.node.jsMenuNode;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
 			pmenu.activeItemNode = null;
@@ -581,7 +545,6 @@ class MenuItem {
 		if (pmenu && pmenu.querySelector('.submenu-active')) {
 			if(this.node.classList.contains('submenu-active')) return;
 
-			this.parentMenu.clearActiveSubmenuStyling(this.node);
 			this.node.classList.add('submenu-active');
 			this.select(this.node, true, true, true);
 		}
@@ -589,7 +552,7 @@ class MenuItem {
 
 	doit() {
 		if (! this.submenu) {
-			this.parentMenu.popdownAll();
+			Menu.popdownAll();
 			if(this.type === 'checkbox')
 				this.checked = !this.checked;
 			if(this.click) this.click(this);
@@ -597,7 +560,7 @@ class MenuItem {
 	}
 
 	select(node, turnOn, popupSubmenu, menubarSubmenu = false) {
-		let pmenu = this.parentMenu.node;
+		let pmenu = node.jsMenuNode;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
 			pmenu.activeItemNode.classList.remove('submenu-active');
@@ -611,11 +574,11 @@ class MenuItem {
 			this.selectSubmenu(node, menubarSubmenu);
 		else
 			node.classList.add('active');
-		this.parentMenu.node.activeItemNode = this.node;
+		this.node.jsMenuNode.activeItemNode = this.node;
 	}
 
 	selectSubmenu(node, menubarSubmenu) {
-		this.parentMenu.node.currentSubmenu = this.submenu;
+		node.jsMenuNode.currentSubmenu = this.submenu;
 		if(this.submenu.node)
 			return;
 
@@ -741,9 +704,9 @@ class MenuItem {
 	}
 
 	popupSubmenu(x, y, menubarSubmenu = false) {
-		this.submenu.popup(x, y, true, menubarSubmenu);
+		this.submenu.popup(x, y, this.node, menubarSubmenu);
 		this.submenu.node.menuItem = this.node;
-		this.parentMenu.node.currentSubmenu = this.submenu;
+		this.node.jsMenuNode.currentSubmenu = this.submenu;
 	}
 }
 

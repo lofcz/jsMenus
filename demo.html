@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>jsMenus example demo</title>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+    <link type='text/css' rel='stylesheet' href='jsMenus.css'>
+    <script type='text/javascript' src='jsMenus.js'> </script>
+</head>
+<script type='text/javascript'>
+var fileMenu = new Menu();
+var editMenu = new Menu();
+var viewMenu = new Menu();
+var helpMenu = new Menu();
+
+let menuBar = new Menu({ type: 'menubar' });
+menuBar.append(new MenuItem({label: 'File', submenu: fileMenu}));
+menuBar.append(new MenuItem({label: 'Edit', submenu: editMenu}));
+menuBar.append(new MenuItem({label: 'View', submenu: viewMenu}));
+menuBar.append(new MenuItem({label: 'Help', submenu: helpMenu}));
+
+var copyItem = new MenuItem({label: "Copy",
+                              accelerator: 'CommandOrControl+C',
+                              click: function() {
+                                  if (! document.execCommand("copy", false))
+                                      alert("execCommand copy failed");
+                              }});
+var pasteItem = new MenuItem({label: "Paste",
+                              accelerator: 'CommandOrControl+V',
+                              click: function() {
+                                  if (! document.execCommand("paste", false))
+                                      alert("execCommand paste failed");
+                              }});
+
+var showingMenuBar = true;
+var showMenuBarItem = new MenuItem({
+    label: 'Show menubar',
+    type: 'checkbox',
+    click: function() {
+        showingMenuBar = ! showingMenuBar;
+        Menu.setApplicationMenu(showingMenuBar ? menuBar : null);
+    },
+    checked: true});
+
+fileMenu.append(new MenuItem({
+    label: 'Clear console',
+    key: 'D',
+    modifiers: 'cmd+shift+alt',
+    tooltip: 'This MenuItem actually does nothing!'}));
+fileMenu.append(new MenuItem({
+    label: "Close",
+    click: function() {
+        alert("(close may be disallowed)");
+        window.close(); }}));
+fileMenu.append(new MenuItem({
+    label: 'Save as...',
+    enabled: false
+}));
+
+var changeTitleMenu = new Menu();
+function changeTitle(menuItem) {
+    document.title = "jsMenus title "+menuItem.label;
+}
+changeTitleMenu.append(new MenuItem({label: "demo", click: changeTitle}));
+changeTitleMenu.append(new MenuItem({label: "example", click: changeTitle}));
+changeTitleMenu.append(new MenuItem({label: "test", click: changeTitle}));
+
+viewMenu.append(showMenuBarItem);
+editMenu.append(copyItem);
+editMenu.append(pasteItem);
+editMenu.append(new MenuItem({type: 'separator'}));
+editMenu.append(new MenuItem({label: "Change title", submenu: changeTitleMenu}));
+
+var contextMenu = new Menu();
+
+contextMenu.append(copyItem);
+contextMenu.append(pasteItem);
+contextMenu.append(new MenuItem({type: 'separator'}));
+contextMenu.append(new MenuItem({label: "Change title", submenu: changeTitleMenu}));
+contextMenu.append(showMenuBarItem);
+  
+
+function loadHandler() {
+    Menu.setApplicationMenu(menuBar);
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        contextMenu.popup(e.clientX, e.clientY);
+        return false;
+    });
+}
+window.addEventListener("load", loadHandler, false);
+</script>
+<body>
+<p contenteditable="true">Hello - jsMenus test!</p>
+</body>
+</html>

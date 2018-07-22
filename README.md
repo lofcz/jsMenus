@@ -42,7 +42,7 @@ its elements, rather than just hiding it with css.
 
 Just load or require `jsMenus.js` and `jsMenus.css`.
 
-There is API documentation in Documentation.ms.
+There is API documentation in Documentation.md.
 
 ### Demo/example
 

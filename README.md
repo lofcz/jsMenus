@@ -42,6 +42,12 @@ its elements, rather than just hiding it with css.
 
 Just load or require `jsMenus.js` and `jsMenus.css`.
 
+### Demo/example
+
+The file [demo.html](./demo.html) show many of the features.
+You can run it in-place after cloning it.
+You can also [view it directly on GitHub](https://rawgit.com/PerBothner/jsMenus/master/demo.html) using rawgit.
+
 ### Screenshots
 
 This shows the context menu for the [DomTerm terminal emulator](https://domterm.org).

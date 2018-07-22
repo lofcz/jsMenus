@@ -4,6 +4,7 @@
     <title>jsMenus example demo</title>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
     <link type='text/css' rel='stylesheet' href='jsMenus.css'>
+    <script type='text/javascript' src='examples/screenfull.js'> </script>
     <script type='text/javascript' src='jsMenus.js'> </script>
 </head>
 <script type='text/javascript'>
@@ -43,6 +44,7 @@ var showMenuBarItem = new MenuItem({
 
 fileMenu.append(new MenuItem({
     label: 'Clear console',
+    icon: 'examples/terminal.png',
     key: 'D',
     modifiers: 'cmd+shift+alt',
     tooltip: 'This MenuItem actually does nothing!'}));
@@ -65,6 +67,15 @@ changeTitleMenu.append(new MenuItem({label: "example", click: changeTitle}));
 changeTitleMenu.append(new MenuItem({label: "test", click: changeTitle}));
 
 viewMenu.append(showMenuBarItem);
+viewMenu.append(new MenuItem({
+    label: "Full Screen",
+    type: 'checkbox',
+    checked: false,
+    beforeShow: function(item) { item.checked = screenfull.isFullscreen; },
+    click: function() {
+        screenfull.toggle();
+    }}));
+
 editMenu.append(copyItem);
 editMenu.append(pasteItem);
 editMenu.append(new MenuItem({type: 'separator'}));
@@ -77,7 +88,15 @@ contextMenu.append(pasteItem);
 contextMenu.append(new MenuItem({type: 'separator'}));
 contextMenu.append(new MenuItem({label: "Change title", submenu: changeTitleMenu}));
 contextMenu.append(showMenuBarItem);
-  
+
+const exitFullscreenItem = new MenuItem({
+    label: "Exit full screen",
+    visible: false, // hidden unless fullscreen
+    beforeShow: function(item) { item.visible = screenfull.isFullscreen; },
+    click: function() {
+        screenfull.exit();
+    }})
+contextMenu.append(exitFullscreenItem);  
 
 function loadHandler() {
     Menu.setApplicationMenu(menuBar);

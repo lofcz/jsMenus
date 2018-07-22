@@ -3,10 +3,16 @@ class Menu {
 		const typeEnum = ['contextmenu', 'menubar'];
 		let items = [];
 		let type = isValidType(settings.type) ? settings.type : 'contextmenu';
-
+		let beforeShow = settings.beforeShow;
 		Object.defineProperty(this, 'items', {
 			get: () => {
 				return items;
+			}
+		});
+
+		Object.defineProperty(this, 'beforeShow', {
+			get: () => {
+				return beforeShow;
 			}
 		});
 
@@ -169,6 +175,8 @@ class Menu {
 	}
 
 	buildMenu(submenu = false, menubarSubmenu = false) {
+		if (this.beforeShow)
+			(this.beforeShow)(this);
 		let menuNode = document.createElement('ul');
 		menuNode.classList.add('nwjs-menu', this.type);
 		if(submenu) menuNode.classList.add('submenu');
@@ -177,10 +185,11 @@ class Menu {
 		menuNode.jsMenu = this;
 		menuNode.parentMenuNode = Menu._currentMenuNode;
 		this.items.forEach(item => {
+			if (item.beforeShow)
+				(item.beforeShow)(item);
 			if (item.visible) {
-				let itemNode = item.buildItem(menuNode,
-							      this.type === 'menubar');
-				menuNode.appendChild(itemNode);
+				item.buildItem(menuNode,
+					       this.type === 'menubar');
 			}
 		});
 		return menuNode;
@@ -427,10 +436,17 @@ class MenuItem {
 		if(typeof settings.enabled === 'undefined') enabled = true;
 		let visible = settings.visible;
 		if(typeof settings.visible === 'undefined') visible = true;
+		let beforeShow = settings.beforeShow;
 
 		Object.defineProperty(this, 'type', {
 			get: () => {
 				return type;
+			}
+		});
+
+		Object.defineProperty(this, 'beforeShow', {
+			get: () => {
+				return beforeShow;
 			}
 		});
 
@@ -700,7 +716,7 @@ class MenuItem {
 
 		node.title = this.tooltip;
 		this.node = node;
-		return node;
+		menuNode.appendChild(node);
 	}
 
 	popupSubmenu(x, y, menubarSubmenu = false) {

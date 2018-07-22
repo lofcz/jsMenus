@@ -42,9 +42,11 @@ its elements, rather than just hiding it with css.
 
 Just load or require `jsMenus.js` and `jsMenus.css`.
 
+There is API documentation in Documentation.ms.
+
 ### Demo/example
 
-The file [demo.html](./demo.html) show many of the features.
+The file [demo.html](./demo.html) shows many of the features.
 You can run it in-place after cloning it.
 You can also [view it directly on GitHub](https://rawgit.com/PerBothner/jsMenus/master/demo.html) using rawgit.
 
@@ -61,4 +63,4 @@ without the default "chrome" (location bar etc).
 * Test and polish style on multiple platforms, including MacOS.
 * Internal cleanup - Menu or MenuItem should not have properties
 that depend on display/navigation state. Specifically, there
-should be no pointers to the parent or DOM node, not even temporarily.
+should be no pointersMto the parent or DOM node, not even temporarily.

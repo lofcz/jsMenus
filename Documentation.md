@@ -4,7 +4,14 @@ The `demo.html` shows most of these features.
 
 ## The Menu class
 
-### Properties:
+### Construction
+
+`new MenuItem`(_options_)
+
+### Properties
+
+These can be initialized in the _options_ object
+passed to the constructor.
 
 `type` - one of `menubar` or `contextmenu` (the default).
 
@@ -35,13 +42,20 @@ If null, `document.body` is the default.
 `popup`(_clientX_, _clientY_) - display this menu.
 This is normally only called directly for context menus.
 
-### Static methods:
+### Static methods
 
 `setApplicationMenu`(_menuBar_)
 
 ## The MenuItem class
 
-### Properties:
+### Constructing
+
+`new MenuItem`(_options_)
+
+### Properties
+
+These can be initialized in the _options_ object
+passed to the constructor.
 
 `type` - one of `separator`, `checkbox`, or `normal` (the default).
 If `separator`, this is not a real MenuItem, but is just used to

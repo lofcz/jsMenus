@@ -367,6 +367,13 @@ Menu._keydownListener = function(e) {
 		return next;
 
 	}
+	function openSubmenu(active) {
+		active.jsMenuItem.selectSubmenu(active);
+		menuNode = Menu._currentMenuNode;
+		let next = nextItem(menuNode, null, true);
+		if (next)
+			next.jsMenuItem.select(next, true, false);
+	}
 	let menuNode = Menu._currentMenuNode
 	if (menuNode) {
 		let active = menuNode.activeItemNode;
@@ -384,14 +391,18 @@ Menu._keydownListener = function(e) {
 		case 13: // Enter
 			e.preventDefault();
 			e.stopPropagation();
-			if (active)
-				active.jsMenuItem.doit();
+			if (active) {
+				if (active.jsMenuItem.submenu)
+					openSubmenu(active);
+				else
+					active.jsMenuItem.doit();
+			}
 			break;
 		case 39: // Right
 			e.preventDefault();
 			e.stopPropagation();
 			if (active && active.jsMenuItem.submenu)
-				active.jsMenuItem.selectSubmenu(active);
+				openSubmenu(active);
 			else if (Menu._topmostMenu.menubarSubmenu)
 				nextMenu(menuNode, true);
 			break;

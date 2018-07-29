@@ -57,7 +57,7 @@ DomTerm is started using the `--chrome-app` flag,
 which starts the Google Chrome browser in "application mode",
 without the default "chrome" (location bar etc).
 
-![domterm-menu-bar](./example-assets/images/domterm-context-menu.png)
+![domterm-menu-bar](./examples/domterm-context-menu.png)
 
 ### TODO
 * Test and polish style on multiple platforms, including MacOS.

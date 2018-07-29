@@ -57,7 +57,7 @@ This is normally only called directly for context menus.
 These can be initialized in the _options_ object
 passed to the constructor.
 
-`type` - one of `separator`, `checkbox`, or `normal` (the default).
+`type` - one of `separator`, `checkbox`, 'radio', or `normal` (the default).
 If `separator`, this is not a real MenuItem, but is just used to
 display a separator line.
 
@@ -84,7 +84,10 @@ and cannot be selected.
 
 `visible` - normally true.  If false, it is hidden.
 
-`checked` - true if a checkbox is checked.
+`checked` - true if a `checkbox` or `radio` item is selected.
+Clicking a `checkbox` item will toggle its checked field.
+Clicking a `radio` item will select the clicked field,
+and unselect any adjacent `radio` items in the same menu.
 
 `tooltip` - a string displayed when hovering over the item.
 

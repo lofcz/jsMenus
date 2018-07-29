@@ -62,9 +62,13 @@ var changeTitleMenu = new Menu();
 function changeTitle(menuItem) {
     document.title = "jsMenus title "+menuItem.label;
 }
-changeTitleMenu.append(new MenuItem({label: "demo", click: changeTitle}));
-changeTitleMenu.append(new MenuItem({label: "example", click: changeTitle}));
-changeTitleMenu.append(new MenuItem({label: "test", click: changeTitle}));
+// if other code may change document.title add beforeShow handler
+changeTitleMenu.append(new MenuItem({label: "demo", type: "radio",
+                                     checked: true, click: changeTitle}));
+changeTitleMenu.append(new MenuItem({label: "example", type: "radio",
+                                     click: changeTitle}));
+changeTitleMenu.append(new MenuItem({label: "test", type: "radio",
+                                     click: changeTitle}));
 
 viewMenu.append(showMenuBarItem);
 viewMenu.append(new MenuItem({
@@ -96,7 +100,7 @@ const exitFullscreenItem = new MenuItem({
     click: function() {
         screenfull.exit();
     }})
-contextMenu.append(exitFullscreenItem);  
+contextMenu.append(exitFullscreenItem);
 
 function loadHandler() {
     Menu.setApplicationMenu(menuBar);
@@ -109,6 +113,11 @@ function loadHandler() {
 window.addEventListener("load", loadHandler, false);
 </script>
 <body>
-<p contenteditable="true">Hello - jsMenus test!</p>
+<h1 contenteditable="true">Hello - jsMenus test!</h1>
+<p>
+This is a test of <a href="https://github.com/PerBothner/jsMenus">jsMenus</a>,
+a JavaScript library for creating menus.
+Try clicking on the menubar above, or bringing up the context menu
+(usually by right-clicking).
 </body>
 </html>

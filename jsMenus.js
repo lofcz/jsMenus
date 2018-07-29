@@ -256,7 +256,7 @@ class Menu {
 				}
 			}
 			if (e.type=="mouseup") {
-				item.doit();
+				item.doit(miNode);
 			}
 		}
 	}
@@ -395,7 +395,7 @@ Menu._keydownListener = function(e) {
 				if (active.jsMenuItem.submenu)
 					openSubmenu(active);
 				else
-					active.jsMenuItem.doit();
+					active.jsMenuItem.doit(active);
 			}
 			break;
 		case 39: // Right
@@ -436,7 +436,7 @@ class MenuItem {
 
 
 		const modifiersEnum = ['cmd', 'command', 'super', 'shift', 'ctrl', 'alt'];
-		const typeEnum = ['separator', 'checkbox', 'normal'];
+		const typeEnum = ['separator', 'checkbox', 'radio', 'normal'];
 		let type = isValidType(settings.type) ? settings.type : 'normal';
 		let submenu = settings.submenu || null;
 		let click = settings.click || null;
@@ -577,11 +577,24 @@ class MenuItem {
 		}
 	}
 
-	doit() {
+	doit(node) {
 		if (! this.submenu) {
 			Menu.popdownAll();
 			if(this.type === 'checkbox')
 				this.checked = !this.checked;
+			else if (this.type === 'radio') {
+				this.checked = true;
+				for (let dir = 0; dir <= 1; dir++) {
+					for (let n = node; ; ) {
+						n = dir ? n.nextSibling
+							: n.previousSibling;
+						if (! (n instanceof Element
+						       && n.classList.contains("radio")))
+							break;
+						n.jsMenuItem.checked = false;
+					}
+				}
+			}
 			if(this.click) this.click(this);
 		}
 	}
@@ -655,12 +668,8 @@ class MenuItem {
 		let checkmarkNode = document.createElement('div');
 		checkmarkNode.classList.add('checkmark');
 
-		if(!menuBarTopLevel) {
-                    if (this.checked)
+		if(this.checked && !menuBarTopLevel)
 			node.classList.add('checked');
-                    else
-			node.classList.remove('checked');
-		}
 
 		let text = '';
 

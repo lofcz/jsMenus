@@ -1,7 +1,7 @@
 # Menus in JavaScript
 
 This is a library for menus (both menubars and context-menus),
-implemeted using plain JavaScript that should work in all modern browsers
+implemented using plain JavaScript. It should work in all modern browsers
 without requiring any special permissions or server support.
 The API is similar (and mostly compatible) with that of NWJS and Electron.
 It is based on Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
@@ -25,11 +25,11 @@ Advantages and changes compared to the original `mwjs-menu-browser`:
 * Keyboard navigation (using arrow keys, Escape, and Enter).
 * Some changes to work better with libraries such as GoldenLayout
 (for panes and tab) and full-screen.
-* Change menubar API - you need to explicitly call `Menu.setApplicationMenu`
+* You need to explicitly call `Menu.setApplicationMenu`
 (like Electron) - creating the Menu objects is not sufficient.
 * Passes MenuItem as (first) argument to click handler (like Electron).
 * Support `visible` property on MenuItems (like Electron).
-* Support `accelerator` property (like Electron) as an alernative to
+* Support `accelerator` property (like Electron) as an alternative to
 `key` plus `modifiers`.
 * Polishing so it works more like other menu systems, including
 various bug fixes, and working smoothly under Firefox.

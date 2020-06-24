@@ -4,7 +4,7 @@ This is a library for menus (both menubars and context-menus),
 implemented using plain JavaScript. It should work in all modern browsers
 without requiring any special permissions or server support.
 The API is similar (and mostly compatible) with that of NWJS and Electron.
-It is based on Sam Wray's [mwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
+It is based on Sam Wray's [nwjs-menu-browser](https://github.com/2xAA/nwjs-menu-browser) library.
 
 This makes possible applications that look and feel like native
 applications, using web APIs (HTML, JavaScript, CSS, DOM),
@@ -19,7 +19,7 @@ Electron, and the code for creating menus (see `hlib/domterm-menus.js`)
 is mostly the same whether using Electron to create menus, or using this
 library in a generic browser.
 
-Advantages and changes compared to the original `mwjs-menu-browser`:
+Advantages and changes compared to the original `nwjs-menu-browser`:
 
 * Menu-items and menus can be shared between menus.
 * Keyboard navigation (using arrow keys, Escape, and Enter).

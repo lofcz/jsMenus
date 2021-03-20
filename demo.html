@@ -6,7 +6,10 @@
     <link type='text/css' rel='stylesheet' href='jsMenus.css'>
     <script type='text/javascript' src='examples/screenfull.js'> </script>
     <script type='text/javascript' src='jsMenus.js'> </script>
-</head>
+<style type="text/css">
+.menubar > .menu-item { border: solid thin black; margin: 0 1px; }
+.menu-item { background-color: lightyellow }
+</style>
 <script type='text/javascript'>
 var fileMenu = new Menu();
 var editMenu = new Menu();
@@ -112,6 +115,7 @@ function loadHandler() {
 }
 window.addEventListener("load", loadHandler, false);
 </script>
+</head>
 <body>
 <h1 contenteditable="true">Hello - jsMenus test!</h1>
 <p>

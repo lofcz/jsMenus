@@ -253,7 +253,7 @@ class Menu {
 					if(item.node.classList.contains('submenu-active')) {
 						miNode.jsMenu.node.activeItemNode = item.node;
 
-						item.popupSubmenu(item.node.offsetLeft, item.node.clientHeight, true);
+						item.popupSubmenu(item.node.offsetLeft, item.node.offsetHeight, true);
 					} else {
 						item.submenu.popdown();
 						miNode.jsMenu.node.currentSubmenu = null;

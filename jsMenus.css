@@ -12,6 +12,8 @@ div.below-menubar { flex: 1 1 0; min-height: 0;}
     border: none;
     padding: 0px;
     background-color: inherit;
+    appearance: none;
+    outline: none;
 }
 
 .nwjs-menu {
@@ -183,7 +185,9 @@ li.menu-item.separator {
 .menubar .menu-item.normal > div {
     vertical-align: top;
 }
-
+.menubar > .menu-item {
+    margin: 0 1px;
+}
 .menubar > .menu-item.normal > button .checkmark,
 .menubar > .menu-item.normal > button .modifiers {
     display: none;

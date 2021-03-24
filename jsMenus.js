@@ -158,7 +158,7 @@ class Menu {
 		if(this.node && this.type !== 'menubar') {
 			Menu._currentMenuNode = this.node.parentMenuNode;
 			if (this.menubarSubmenu)
-				this.node.menuItem.classList.remove('submenu-active');
+				Menu.showSubmenuActive(this.node.menuItem, false);
 			this.node.parentNode.removeChild(this.node);
 			this.node = null;
 		}
@@ -175,6 +175,16 @@ class Menu {
 		if(this.type === 'menubar') {
 			this.clearActiveSubmenuStyling();
 		}
+	}
+
+	static showSubmenuActive(node, active) {
+		if (active)
+			node.classList.add('submenu-active');
+		else
+			node.classList.remove('submenu-active');
+		if (node.firstChild instanceof Element)
+			node.firstChild.setAttribute('aria-expanded',
+						     active?'true':'false');
 	}
 
 	static popdownAll() {
@@ -247,10 +257,11 @@ class Menu {
 		if ((inMenubar == menubarHandler) && miNode) {
 			let item = miNode.jsMenuItem;
 			if (e.type=="mousedown") {
-				item.node.classList.toggle('submenu-active');
+				let wasActive = item.node.classList.contains('submenu-active');
+				Menu.showSubmenuActive(item.node, !wasActive);
 				// FIXME use select method
 				if(item.submenu) {
-					if(item.node.classList.contains('submenu-active')) {
+					if(! wasActive) {
 						miNode.jsMenu.node.activeItemNode = item.node;
 
 						item.popupSubmenu(item.node.offsetLeft, item.node.offsetHeight, true);
@@ -297,7 +308,7 @@ class Menu {
 		let submenuActive = this.node.querySelectorAll('.submenu-active');
 		for(let node of submenuActive) {
 			if(node === notThisNode) continue;
-			node.classList.remove('submenu-active');
+			Menu.showSubmenuActive(node, false);
 		}
 	}
 
@@ -575,13 +586,12 @@ class MenuItem {
 	_mouseoverHandle_menubarTop() {
 		let pmenu = this.node.jsMenuNode;
 		if (pmenu.activeItemNode) {
-			pmenu.activeItemNode.classList.remove('active');
+			Menu.showSubmenuActive(pmenu.activeItemNode, false);
 			pmenu.activeItemNode = null;
 		}
 		if (pmenu && pmenu.querySelector('.submenu-active')) {
 			if(this.node.classList.contains('submenu-active')) return;
-
-			this.node.classList.add('submenu-active');
+			Menu.showSubmenuActive(this.node, true);
 			this.select(this.node, true, true, true);
 		}
 	}
@@ -612,7 +622,7 @@ class MenuItem {
 		let pmenu = node.jsMenuNode;
 		if (pmenu.activeItemNode) {
 			pmenu.activeItemNode.classList.remove('active');
-			pmenu.activeItemNode.classList.remove('submenu-active');
+			Menu.showSubmenuActive(pmenu.activeItemNode, false);
 			pmenu.activeItemNode = null;
 		}
 		if(pmenu.currentSubmenu) {
@@ -641,7 +651,7 @@ class MenuItem {
 			y = parentNode.offsetTop + node.offsetTop - 4;
 		}
 		this.popupSubmenu(x, y, menubarSubmenu);
-		node.classList.add('submenu-active');
+		Menu.showSubmenuActive(node, true);
 	}
 
 	buildItem(menuNode, menuBarTopLevel = false) {
@@ -668,13 +678,13 @@ class MenuItem {
 			iconWrapNode.appendChild(iconNode);
 		}
 
-		let labelNode = document.createElement('div');
+		let labelNode = document.createElement('span');
 		labelNode.classList.add('label');
 
-		let modifierNode = document.createElement('div');
+		let modifierNode = document.createElement('span');
 		modifierNode.classList.add('modifiers');
 
-		let checkmarkNode = document.createElement('div');
+		let checkmarkNode = document.createElement('span');
 		checkmarkNode.classList.add('checkmark');
 
 		if(this.checked && !menuBarTopLevel)
@@ -732,17 +742,23 @@ class MenuItem {
 
 		if(this.icon) labelNode.appendChild(iconWrapNode);
 
+		let buttonNode = document.createElement('button');
+		if (this.submenu)
+			buttonNode.setAttribute('aria-expanded', 'false');
+
 		let textLabelNode = document.createElement('span');
 		textLabelNode.textContent = this.label;
 		textLabelNode.classList.add('label-text');
 
-		node.appendChild(checkmarkNode);
+		buttonNode.appendChild(checkmarkNode);
 
 		labelNode.appendChild(textLabelNode);
-		node.appendChild(labelNode);
+		buttonNode.appendChild(labelNode);
 
 		modifierNode.appendChild(document.createTextNode(text));
-		node.appendChild(modifierNode);
+		buttonNode.appendChild(modifierNode);
+
+		node.appendChild(buttonNode);
 
 		node.title = this.tooltip;
 		this.node = node;

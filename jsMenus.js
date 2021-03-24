@@ -742,9 +742,15 @@ class MenuItem {
 
 		if(this.icon) labelNode.appendChild(iconWrapNode);
 
-		let buttonNode = document.createElement('button');
-		if (this.submenu)
-			buttonNode.setAttribute('aria-expanded', 'false');
+		let buttonNode;
+		if (this.type !== 'separator') {
+			buttonNode = document.createElement('button');
+			node.appendChild(buttonNode);
+			if (this.submenu)
+				buttonNode.setAttribute('aria-expanded',
+							'false');
+		} else
+			buttonNode = node;
 
 		let textLabelNode = document.createElement('span');
 		textLabelNode.textContent = this.label;
@@ -757,8 +763,6 @@ class MenuItem {
 
 		modifierNode.appendChild(document.createTextNode(text));
 		buttonNode.appendChild(modifierNode);
-
-		node.appendChild(buttonNode);
 
 		node.title = this.tooltip;
 		this.node = node;

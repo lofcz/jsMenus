@@ -586,7 +586,7 @@ class MenuItem {
 	_mouseoverHandle_menubarTop() {
 		let pmenu = this.node.jsMenuNode;
 		if (pmenu.activeItemNode) {
-			Menu.showSubmenuActive(pmenu.activeItemNode, false);
+			pmenu.activeItemNode.classList.remove('active');
 			pmenu.activeItemNode = null;
 		}
 		if (pmenu && pmenu.querySelector('.submenu-active')) {

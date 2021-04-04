@@ -694,7 +694,7 @@ class MenuItem {
 		let text = '';
 
 		if(this.submenu && !menuBarTopLevel) {
-			text = '▶︎';
+			text = MenuItem.submenuSymbol;
 
 			node.addEventListener('mouseleave', (e) => {
 				if(node !== e.target) {
@@ -776,6 +776,8 @@ class MenuItem {
 		this.node.jsMenuNode.currentSubmenu = this.submenu;
 	}
 }
+
+MenuItem.submenuSymbol = '\u27a7'; // '➧' Squat Black Rightwards Arrow[
 
 MenuItem.modifierSymbols = {
 	shift: '⇧',

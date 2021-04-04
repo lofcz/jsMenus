@@ -250,7 +250,8 @@ class Menu {
 		   if (miNode) select
 		   else popdownAll
 		*/
-		if (e.type=="mousedown" && !miNode) {
+		if (e.type=="mousedown" && inMenubar == menubarHandler
+		    && (!miNode || miNode.jsMenuItem.menuBarTopLevel)) {
 			if (Menu._topmostMenu)
 				Menu.popdownAll();
 		}
@@ -633,7 +634,7 @@ class MenuItem {
 			this.selectSubmenu(node, menubarSubmenu);
 		else
 			node.classList.add('active');
-		this.node.jsMenuNode.activeItemNode = this.node;
+		node.jsMenuNode.activeItemNode = node;
 	}
 
 	selectSubmenu(node, menubarSubmenu) {

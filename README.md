@@ -12,6 +12,10 @@ without the overhead of something like Electron.
 You can use any "embedded" bare-bones web browser, including
 the Chrome browser with the `--app` option.
 
+The library implements many of the recommendations for acessibility
+(<a href="https://www.w3.org/WAI/GL/wiki/Using_ARIA_menus">ARIA</a>).
+It has not been tested with a screenreader, but feedback is welcome.
+
 As an example, the [DomTerm](https://domterm.org) terminal emulator
 has a "back-end" written in C, which communicates (using http and
 websockets) with any modern browser.  It can optionally run under

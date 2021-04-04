@@ -197,6 +197,8 @@ class Menu {
 			(this.beforeShow)(this);
 		let menuNode = document.createElement('ul');
 		menuNode.classList.add('nwjs-menu', this.type);
+		menuNode.setAttribute('role',
+				      this.type === 'menubar' ? 'menubar' : 'menu'); // ARIA recommended
 		if(submenu) menuNode.classList.add('submenu');
 		if(menubarSubmenu) menuNode.classList.add('menubar-submenu');
 
@@ -407,6 +409,7 @@ Menu._keydownListener = function(e) {
 				return;
 			menuNode.jsMenu.popdown();
 			break;
+		case 32: // Space
 		case 13: // Enter
 			e.preventDefault();
 			e.stopPropagation();
@@ -657,6 +660,7 @@ class MenuItem {
 
 	buildItem(menuNode, menuBarTopLevel = false) {
 		let node = document.createElement('li');
+		node.setAttribute('role', this.type === 'separator' ? 'separator' : 'menuitem');
 		node.jsMenuNode = menuNode;
 		node.jsMenu = menuNode.jsMenu;
 		node.jsMenuItem = this;
@@ -692,6 +696,9 @@ class MenuItem {
 			node.classList.add('checked');
 
 		let text = '';
+
+		if(this.submenu)
+			node.setAttribute('aria-haspopup', 'true');
 
 		if(this.submenu && !menuBarTopLevel) {
 			text = MenuItem.submenuSymbol;

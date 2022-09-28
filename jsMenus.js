@@ -308,7 +308,8 @@ class Menu {
 		    && (!miNode || miNode.jsMenuItem.menuBarTopLevel)) {
 			if (Menu._topmostMenu) {
 				Menu.popdownAll();
-				Menu.menuDone(null);
+				if (Menu.menuDone)
+					Menu.menuDone(null);
 			}
 		}
 		if ((inMenubar == menubarHandler) && miNode) {

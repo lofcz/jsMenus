@@ -29,7 +29,7 @@ var copyItem = new MenuItem({label: "Copy",
                                       alert("execCommand copy failed");
                               }});
 var pasteItem = new MenuItem({label: "Paste",
-                              accelerator: 'CommandOrControl+V',
+                              accelerator: 'CmdOrControl+V',
                               click: function() {
                                   if (! document.execCommand("paste", false))
                                       alert("execCommand paste failed");

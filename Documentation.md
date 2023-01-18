@@ -57,7 +57,7 @@ This is normally only called directly for context menus.
 These can be initialized in the _options_ object
 passed to the constructor.
 
-`type` - one of `separator`, `checkbox`, 'radio', or `normal` (the default).
+`type` - one of `separator`, `checkbox`, `radio`, or `normal` (the default).
 If `separator`, this is not a real MenuItem, but is just used to
 display a separator line.
 
@@ -68,7 +68,11 @@ display a separator line.
 `submenu` - a (child) sub-menu of the containing menu.
 
 `accelerator` - keyboard accelerator.
-This is preferred over using `key` and `modifiers` because
+Usually a string representing a keyboard shortcut - for example `"Ctrl+Shift+Q"`.
+A multi-key sequences (as used in Emacs) is represented
+as an array of strings - for example `["Ctrl+X", "B"]`.
+(Alternatively, you can use a single string with spaces between each keystroke.)
+Using `accelerator` is preferred over using `key` and `modifiers` because
 it can handle multi-key sequences, and because this is compatible with Electron.
 Note this property is only "informational" - this library
 does not handle keyboard events, except for menu navigation.

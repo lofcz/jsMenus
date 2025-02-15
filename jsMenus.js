@@ -883,8 +883,3 @@ MenuItem.useModifierSymbols = Menu._isMac;
 if (typeof module !== "undefined" && module.exports) {
 	module.exports = { Menu: Menu, MenuItem: MenuItem };
 }
-
-// Local Variables:
-// js-indent-level: 8
-// indent-tabs-mode: t
-// End:
